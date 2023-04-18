@@ -6,7 +6,7 @@ from Bio import SeqIO
 
 parser = argparse.ArgumentParser(description='Entropy filter to identify nucleotides with high entropy values')
 # Revert the required = True && dealute = None after finished && mask deafult
-parser.add_argument('--file', '-f', required=False, type=str, default='sequence.fasta',
+parser.add_argument('--file', '-f', required=True, type=str, default=None,
     metavar='<str>', help='Fasta file to be analyzed, can be single fasta sequence or multi-fasta')
 
 parser.add_argument('--entropy', '-e', required=False, type=float, default=1.4,
@@ -17,6 +17,9 @@ parser.add_argument('--window', '-w', required=False, type=int, default=11,
 
 parser.add_argument('--mask', '-m', required=False, type=bool, default=False,
     metavar='<bool>', help="Annotate high entropy regions by changing type case, DEFAULT = replaced with 'N'")
+
+parser.add_argument('--outfile', '-o', required=False, type=str, default='output.fasta',
+    metavar='<str>', help='Name of output file')
 
 arg = parser.parse_args()
 
@@ -70,3 +73,12 @@ def analyze(seq, window, entropy, mask):
 
 
 analyze(seq_list[0][1], arg.window, arg.entropy, arg.mask)
+
+output = f""
+for i in seq_list:
+    output += f'{i[0]}\n'
+    output += f'{analyze(i[1], arg.window, arg.entropy, arg.mask)}\n'
+
+
+outfile = open(arg.outfile, 'w')
+outfile.write(output)
