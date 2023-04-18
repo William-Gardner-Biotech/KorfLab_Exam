@@ -1,0 +1,36 @@
+Data Files
+William Gardner
+
+1.      gunzip GCF_*.gz
+        grep -o '\>' GCF_000005845.2_ASM584v2_protein.faa | wc -l
+
+output = 4298 proteins
+
+2.      grep -e 'CDS' GCF_000005845.2_ASM584v2_genomic.gbff | wc -l
+        
+output = 4357
+
+3.
+
+These are more CDS because from what I understand they are 'hypothetical' protein coding area. A annotating algorithm marks things that look like protein coding regions and these are CDS. However they do not always make proteins because the gene was broken a long time ago or never served any purpose and happened by chance. It would follow that there are more CDS than proteins because every protein belongs to a CDS but there can be CDs without ever having a protein.
+
+ 4.     cp GCF_000005845.2_ASM584v2_genomic.gff test.gff
+	grep -o -P '\ttRNA\t' test.gff | wc -l
+
+output = 86
+
+5.      grep -o -P 'RefSeq\t[a-zA-Z]*\t' test.gff | sort | uniq -c
+
+output =
+
+   4337 RefSeq  CDS
+    207 RefSeq  exon
+   4494 RefSeq  gene
+     99 RefSeq  ncRNA
+    145 RefSeq  pseudogene
+      1 RefSeq  region
+     22 RefSeq  rRNA
+     86 RefSeq  tRNA
+
+gzip GCF* 
+(Keep the storage space clean)
