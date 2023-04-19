@@ -4,7 +4,7 @@ from Bio import SeqIO
 
 # Adds CLI options
 
-parser = argparse.ArgumentParser(description='Entropy filter to identify nucleotides with high entropy values')
+parser = argparse.ArgumentParser(description='Entropy filter to identify nucleotides with high entropy values, and mask those with low values')
 # Revert the required = True && dealute = None after finished && mask deafult
 parser.add_argument('--file', '-f', required=True, type=str, default=None,
     metavar='<str>', help='Fasta file to be analyzed, can be single fasta sequence or multi-fasta')
@@ -20,6 +20,10 @@ parser.add_argument('--mask', '-m', required=False, type=bool, default=False,
 
 parser.add_argument('--outfile', '-o', required=False, type=str, default='output.fasta',
     metavar='<str>', help='Name of output file')
+
+parser.add_argument('--dev', '-d', required=False, type=bool, default=False,
+    metavar='<bool>', help="Developer mode to visualize more")
+
 
 arg = parser.parse_args()
 
@@ -41,7 +45,7 @@ def prob_dist(subseq):
             return False
     return counts
 
-def analyze(seq, window, entropy, mask):
+def analyze(seq, window, entropy, mask, dev):
     iter = 0
     new_seq = ''
     for nucleotide in seq:
@@ -52,10 +56,10 @@ def analyze(seq, window, entropy, mask):
             exit('Improper nucleotide detected while processing')
         else:
             pE = probs[nucleotide]/len(subseq)
-            pee = 1/pE
             # 'I(E)=log(base2)(1/pE)'
             I_E = math.log(1/(pE), 2)
-            print(subseq, I_E, pee, pE, nucleotide)
+            if dev:
+                print('Window',subseq, 'Information', round(I_E, 1), 'Probability', round(pE, 1), 'Nucleotide', nucleotide)
             if I_E < entropy:
                 if mask:
                     new_seq+=nucleotide.lower()
@@ -70,15 +74,20 @@ def analyze(seq, window, entropy, mask):
             iter += 1
     return new_seq
 
-
-
-analyze(seq_list[0][1], arg.window, arg.entropy, arg.mask)
+# This is where it all gets compiled
+# Takes the tuples list and adds name first then sequence after
 
 output = f""
 for i in seq_list:
-    output += f'{i[0]}\n'
-    output += f'{analyze(i[1], arg.window, arg.entropy, arg.mask)}\n'
+    output += f'>{i[0]}\n'
+    output += f'{analyze(i[1], arg.window, arg.entropy, arg.mask, arg.dev)}\n'
 
 
 outfile = open(arg.outfile, 'w')
 outfile.write(output)
+
+# Notes on current issues and things to resolve 18Apr2023
+# 1. Only handles fasta files with nucleotides in upper case (easy fix)
+# 2. Output files are missing the description...possible resolve would be to also assign description variable when parsing then call back with index \
+# This also would simplify the program removing the need for a tuple list and instead indexing back on original fasta_seqs list
+# 3. Finishes every output with a '\n'
