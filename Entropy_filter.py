@@ -24,7 +24,6 @@ parser.add_argument('--outfile', '-o', required=False, type=str, default='output
 parser.add_argument('--dev', '-d', required=False, type=bool, default=False,
     metavar='<bool>', help="Developer mode to visualize more")
 
-
 arg = parser.parse_args()
 
 fasta_seqs = SeqIO.parse(open(arg.file), 'fasta')
