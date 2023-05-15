@@ -1,19 +1,17 @@
-E.coli
-======
+# Exam to demonstrate Bioinformatics skills
 
-Escherichia coli strain K-12 standard files from NCBI
+## Progress:
 
-## Notes ##
+Part 1 = DONE
 
-In general, it is a bad idea to put genome data in GitHub repos. Most genome
-files are too large. The files here are for demonstration purposes.
+Part 2 = DONE
 
-The files were downloaded from the NCBI on 2022-12-19.
+Part 3 = 
 
-## Manifest ##
-
-+ *.fna.gz - genomic sequence in FASTA format
-+ *.gbff.gz - GenBank flat file format of genome and annotation
-+ *.gff.gz - annotations in GFF format
-+ *.faa.gz - 4298 proteins in FASTA format
-
+    {Entropy Filter:DONE,
+  
+    K-Mer:DONE,
+  
+    Kozak Consensus:DONE,
+  
+    Overlap:IN PROGRESS}
