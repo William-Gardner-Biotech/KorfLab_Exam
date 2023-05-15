@@ -6,7 +6,9 @@ Part 1 = DONE
 
 Part 2 = DONE
 
-Part 3 = 
+Part 3 = DONE
+
+Part 4 = 
 
     {Entropy Filter:DONE,
   
