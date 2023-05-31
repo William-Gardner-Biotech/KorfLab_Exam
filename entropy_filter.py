@@ -7,7 +7,7 @@ from Bio import SeqIO
 parser = argparse.ArgumentParser(description='Entropy filter to identify nucleotides with high entropy values, and mask those with low values')
 # Revert the required = True && dealute = None after finished && mask deafult
 parser.add_argument('--file', '-f', required=True, type=str, default=None,
-    metavar='<str>', help='Fasta file to be analyzed, can be single fasta sequence or multi-fasta')
+    metavar='<str>', help='Fasta file to be entropy_masked, can be single fasta sequence or multi-fasta')
 
 parser.add_argument('--entropy', '-e', required=False, type=float, default=1.4,
     metavar='<float>', help='Modify entropy threshold [DEFAULT = 1.4 bits]')
@@ -15,25 +15,42 @@ parser.add_argument('--entropy', '-e', required=False, type=float, default=1.4,
 parser.add_argument('--window', '-w', required=False, type=int, default=11,
     metavar='<int>', help='Window size for calculating entropy and iterating over sequence(s)')
 
-parser.add_argument('--mask', '-m', required=False, type=bool, default=False,
-    metavar='<bool>', help="Annotate high entropy regions by changing type case, DEFAULT = replaced with 'N'")
+parser.add_argument('--mask', '-m', required=False, action='store_true',
+    help="Annotate high entropy regions by changing type case, DEFAULT = replaced with 'N'\
+        \n USE: python entropy_filter.py -f your.fasta -m [This will make your output mask by changing case, using program without specifying -m will replace low entropy with 'N']")
 
 parser.add_argument('--outfile', '-o', required=False, type=str, default='output.fasta',
     metavar='<str>', help='Name of output file')
 
-parser.add_argument('--dev', '-d', required=False, type=bool, default=False,
-    metavar='<bool>', help="Developer mode to visualize more")
+parser.add_argument('--dev', '-d', required=False, action='store_true',
+    help="Developer mode to visualize more")
 
 arg = parser.parse_args()
 
 fasta_seqs = SeqIO.parse(open(arg.file), 'fasta')
-# Builds a list of tuples of all the sequences, helps with multi-fasta, and will maintain correct order
-seq_list = []
-for fasta in fasta_seqs:
-    name, sequence = fasta.id, str(fasta.seq)
-    seq_list.append((name, sequence))
 
-# Now we'll go through the sequences and replace the values with the newly updated values
+# works as a replacement to SeqIO.parse
+# this parser will create a list of tuples, (name, sequence)
+def fasta_parser(filename):
+    sequence_list = []
+    name = ''
+    file = open(filename, 'r')
+    for line in file:
+        if line.startswith(">"):
+            if not name:
+                name = line
+                seq = ''
+            else:
+                # This will make multifasta handle subsequenct sequences
+                sequence_list.append((name, seq))
+                seq = ''
+                name = line
+        else:
+            seq+=line.strip()
+    # Catches the append for a single fasta and the final sequence of a multifasta
+    sequence_list.append((name, seq))
+
+    return sequence_list
 
 def prob_dist(subseq):
     counts = {"A": 0, "C": 0, "G": 0, "T": 0}
@@ -44,7 +61,7 @@ def prob_dist(subseq):
             return False
     return counts
 
-def analyze(seq, window, entropy, mask, dev):
+def entropy_mask(seq, window, entropy, mask, dev):
     iter = 0
     new_seq = ''
     for nucleotide in seq:
@@ -76,10 +93,11 @@ def analyze(seq, window, entropy, mask, dev):
 # This is where it all gets compiled
 # Takes the tuples list and adds name first then sequence after
 
+seq_list = fasta_parser(arg.file)
+
 output = f""
-for i in seq_list:
-    output += f'>{i[0]}\n'
-    output += f'{analyze(i[1], arg.window, arg.entropy, arg.mask, arg.dev)}\n'
+for name, sequence in seq_list:
+    output += f'{name}{entropy_mask(sequence, arg.window, arg.entropy, arg.mask, arg.dev)}\n'
 
 
 outfile = open(arg.outfile, 'w')
