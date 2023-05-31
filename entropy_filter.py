@@ -99,7 +99,6 @@ output = f""
 for name, sequence in seq_list:
     output += f'{name}{entropy_mask(sequence, arg.window, arg.entropy, arg.mask, arg.dev)}\n'
 
-
 outfile = open(arg.outfile, 'w')
 outfile.write(output)
 
