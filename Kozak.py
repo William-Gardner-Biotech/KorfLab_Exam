@@ -93,7 +93,7 @@ def PWM(kozaks, upstream_length):
             nuc = kzk[position]
             inner_dict[nuc] += 1
         for key in inner_dict.keys():
-            #print(position, key, inner_dict[key])
+            print(position, key, inner_dict[key])
             replacement_dict[key] = probability_replace(inner_dict[key], inner_dict)
         outer_dict[up_one] = replacement_dict
     return outer_dict
@@ -108,7 +108,7 @@ def probability_replace(indv_val, count_dict):
     pE = indv_val/total
     I_E = math.log(1/(pE), 2)
     # subtract the value by 2 which is max information of 4 outcomes
-    pwm_score = 2-I_E
+    pwm_score = pE
     return pwm_score
 
 # Could write into a main() function but why?
