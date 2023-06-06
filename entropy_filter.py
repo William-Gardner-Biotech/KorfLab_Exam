@@ -1,6 +1,5 @@
 import argparse
 import math
-from Bio import SeqIO
 
 # Adds CLI options
 
@@ -27,8 +26,6 @@ parser.add_argument('--dev', '-d', required=False, action='store_true',
 
 arg = parser.parse_args()
 
-fasta_seqs = SeqIO.parse(open(arg.file), 'fasta')
-
 # works as a replacement to SeqIO.parse
 # this parser will create a list of tuples, (name, sequence)
 def fasta_parser(filename):
@@ -42,15 +39,14 @@ def fasta_parser(filename):
                 seq = ''
             else:
                 # This will make multifasta handle subsequenct sequences
-                sequence_list.append((name, seq))
+                yield name, seq
                 seq = ''
                 name = line
         else:
             seq+=line.strip()
     # Catches the append for a single fasta and the final sequence of a multifasta
-    sequence_list.append((name, seq))
+    yield name, seq
 
-    return sequence_list
 
 def prob_dist(subseq):
     counts = {"A": 0, "C": 0, "G": 0, "T": 0}
@@ -92,11 +88,10 @@ def entropy_mask(seq, window, entropy, mask, dev):
 
 # This is where it all gets compiled
 # Takes the tuples list and adds name first then sequence after
-
-seq_list = fasta_parser(arg.file)
+    
 
 output = f""
-for name, sequence in seq_list:
+for name, sequence in fasta_parser(arg.file):
     output += f'{name}{entropy_mask(sequence, arg.window, arg.entropy, arg.mask, arg.dev)}\n'
 
 outfile = open(arg.outfile, 'w')
